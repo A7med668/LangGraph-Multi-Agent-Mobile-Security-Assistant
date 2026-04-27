@@ -1,0 +1,27 @@
+# Core App
+streamlit
+
+# LangGraph & LangChain
+langgraph
+langchain
+langchain-core
+langchain-community
+langchain-ollama
+
+# LLM & Embeddings
+sentence-transformers
+faiss-cpu
+
+# Vector Database
+qdrant-client
+
+# Document Processing
+pypdf
+unstructured
+
+# Web Search (optional tools)
+duckduckgo-search
+tavily-python
+
+# Utilities
+numpy
