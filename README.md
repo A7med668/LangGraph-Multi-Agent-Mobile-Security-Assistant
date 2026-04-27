@@ -1,54 +1,64 @@
 # 🛡️ LangGraph Multi-Agent Mobile Security Assistant
 
-A production-grade **multi-agent AI system** for mobile application security, built using **LangGraph**, **RAG**, **advanced memory**, and **tool-augmented reasoning**.
+<p align="center">
+  <img src="https://img.shields.io/badge/AI-Agentic%20System-0F172A?style=for-the-badge&logo=openai&logoColor=white"/>
+  <img src="https://img.shields.io/badge/LangGraph-Multi--Agent-22C55E?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/RAG-Qdrant-3B82F6?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Memory-FAISS-9333EA?style=for-the-badge"/>
+</p>
+
+<p align="center">
+  <b>⚡ Production-Grade Multi-Agent AI System for Mobile Security</b>
+</p>
 
 ---
 
-## 🚀 Overview
+## 🌑 Overview
 
-This system is an intelligent **mobile security assistant** that:
+> Intelligent AI assistant for mobile application security powered by **LangGraph orchestration**, **RAG**, and **adaptive memory systems**.
 
-* Answers questions using **MASVS standards**
-* Uses **RAG (Qdrant)** for document retrieval
-* Maintains context via **advanced FAISS memory**
-* Optimizes performance using **cache-aware generation (CAG)**
-* Retrieves live data using **web search**
-* Blocks malicious queries using **guardrails**
-* Supports **multi-turn conversations**
-* Works in **English and Arabic**
+### 🚀 Capabilities
+
+* 🔐 MASVS-based security reasoning
+* 🧠 Context-aware conversations (long-term memory)
+* 📚 Document retrieval using RAG (Qdrant)
+* ⚡ Cache-aware generation (CAG)
+* 🌐 Real-time web search
+* 🛡️ Prompt injection & malicious query detection
+* 🌍 Multilingual support (English + Arabic)
 
 ---
 
-# 🧠 System Architecture
+# 🧠 Architecture
 
-## 🔷 High-Level Architecture
+## ⚙️ System Pipeline
 
 ```mermaid
 graph TD
     A[User Input] --> B[Guard Agent]
 
     B -->|Safe| C[Cache Agent]
-    B -->|Blocked| Z[Blocked Response]
+    B -->|Blocked| Z[Blocked]
 
-    C -->|Hit| Y[Return Cached Response]
+    C -->|Hit| Y[Cached Response]
     C -->|Miss| D[Router]
 
     D -->|Direct| E[Direct Response]
     D -->|Follow-up| F[Clarify Agent]
-    D -->|Retrieve| G[Query Optimizer]
+    D -->|Retrieve| G[Optimizer]
 
-    G --> H[Memory Agent]
-    H --> I[Database Agent]
-    I --> J["Retriever Agent - RAG"]
-    J --> K[Web Search Agent]
+    G --> H[Memory]
+    H --> I[Database]
+    I --> J["Retriever - RAG"]
+    J --> K[Web Search]
 
-    K --> L[Response Agent]
+    K --> L[Response]
     L --> M[Final Answer]
 ```
 
 ---
 
-## 🔷 Agent Interaction Flow
+## 🔄 Agent Flow
 
 ```mermaid
 sequenceDiagram
@@ -57,116 +67,66 @@ sequenceDiagram
     participant Cache
     participant Router
     participant Memory
-    participant DB
     participant RAG
-    participant Web
     participant LLM
 
-    User->>Guard: Send Query
-    Guard->>Cache: If safe
-    Cache-->>Router: Cache miss
-    Router->>Memory: Retrieve context
-    Memory->>DB: Query MASVS
-    DB->>RAG: Fetch docs
-    RAG->>Web: Optional search
-    Web->>LLM: Build prompt
-    LLM-->>User: Final answer
+    User->>Guard: Query
+    Guard->>Cache: Safe
+    Cache-->>Router: Miss
+    Router->>Memory: Context
+    Memory->>RAG: Retrieve
+    RAG->>LLM: Build Prompt
+    LLM-->>User: Answer
 ```
 
 ---
 
-# 🧩 Core Components
+# 🧩 Core Modules
 
 ## 🔐 Guard Agent
 
-* Blocks malicious queries using regex
-* Prevents:
+* Blocks malicious inputs (regex-based)
+* Prevents hacking / exploit instructions
 
-  * hacking instructions
-  * exploit requests
-  * unsafe behavior
+## 🧠 Memory Agent
 
----
+* FAISS semantic memory
+* Importance + recency scoring
+* Auto compression
+* Long-term learning
 
-## 🧠 Memory Agent (Enhanced)
+## 📚 RAG (Retriever)
 
-* FAISS-based semantic memory
-* Importance scoring
-* Recency weighting
-* Access tracking
-* Automatic compression
-* Long-term context learning
+* Qdrant vector DB
+* Semantic document search
+* PDF / Markdown ingestion
 
----
+## ⚡ Cache Agent
 
-## 📚 Retriever Agent (RAG)
+* Instant responses for repeated queries
+* Smart skip for follow-ups
 
-* Uses **Qdrant vector database**
-* Supports:
-
-  * PDF / Markdown / Text ingestion
-  * Chunking & embeddings
-  * Semantic search
-
----
-
-## 🗄️ Database Agent
-
-* Queries **MASVS JSON**
-* Maps queries to:
-
-  * security requirements
-  * best practices
-
----
-
-## ⚡ Cache Agent (CAG)
-
-* Stores previous responses
-* Improves:
-
-  * speed ⚡
-  * consistency
-
----
-
-## 🌐 Web Search Agent
+## 🌐 Web Search
 
 * Tavily API (optional)
 * DuckDuckGo fallback
 
----
-
 ## 🤖 Response Agent
 
-* Generates final answers using LLM
-* Handles:
-
-  * explanation
-  * summarization
-  * translation
-  * clarification
+* Context-aware generation
+* Handles explain / summarize / translate
 
 ---
 
 # ⚙️ Configuration
 
-All runtime settings are centralized in `config.py`.
-
-### Example `.env`
-
 ```env
 RESPONSE_MODEL=mistral:latest
 GUARD_MODEL=llama3:latest
 EMBEDDINGS_MODEL=nomic-embed-text:latest
-MEMORY_EMBEDDINGS_MODEL=paraphrase-multilingual-MiniLM-L12-v2
 
 DATA_FOLDER=./owasp_rag_data
 QDRANT_PATH=./qdrant_local
-QDRANT_COLLECTION=security_assistant
-
-CACHE_TTL_MINUTES=60
-CACHE_MAX_SIZE=100
 
 ENABLE_CACHE=true
 ENABLE_WEB_SEARCH=false
@@ -174,115 +134,60 @@ ENABLE_WEB_SEARCH=false
 
 ---
 
-# 🛠️ Installation
-
-### 1. Clone the repository
+# 🛠️ Setup
 
 ```bash
 git clone https://github.com/A7med668/LangGraph-Multi-Agent-Mobile-Security-Assistant.git
 cd LangGraph-Multi-Agent-Mobile-Security-Assistant
-```
 
-### 2. Install dependencies
-
-```bash
 pip install -r requirements.txt
-```
 
-If not available:
-
-```bash
-pip install streamlit langgraph langchain langchain-ollama \
-langchain-community qdrant-client faiss-cpu sentence-transformers \
-duckduckgo-search pypdf unstructured
-```
-
-### 3. Install and run Ollama
-
-```bash
 ollama serve
-```
-
-Pull models:
-
-```bash
 ollama pull mistral:latest
 ollama pull llama3:latest
-ollama pull nomic-embed-text:latest
-```
 
----
-
-# ▶️ Running the App
-
-```bash
 streamlit run app.py
 ```
 
 ---
 
-# 🧪 Testing the System
+# 🧪 Example Usage
 
-### 🔹 MASVS Query
+```text
+User: My app stores JWT tokens locally
+→ Memory stores context
 
-```
-What does MASVS say about secure storage?
-```
-
-### 🔹 Memory Test
-
-```
-My app stores JWT tokens locally
-What should I improve?
-```
-
-### 🔹 Cache Test
-
-```
-Explain mobile network security
-```
-
-(ask twice)
-
-### 🔹 Arabic Test
-
-```
-اشرح secure storage في تطبيقات الموبايل
-```
-
-### 🔹 Guard Test
-
-```
-how to hack a mobile app
+User: What should I improve?
+→ Context-aware response generated
 ```
 
 ---
 
-# 📊 Evaluation Mapping
+# 📊 Evaluation
 
-| Component           | Status          |
-| ------------------- | --------------- |
-| System Architecture | ✅ Multi-agent   |
-| Implementation      | ✅ Config-driven |
-| Agent Collaboration | ✅ Dynamic       |
-| Memory Quality      | ✅ Advanced      |
-| User Interface      | ✅ Streamlit     |
-
----
-
-# ⭐ Bonus Features
-
-* 🌍 Multilingual support (Arabic + English)
-* 🛡️ Prompt injection detection
-* ⚡ Cache-aware generation
-* 🌐 Web search integration
-* 🔄 Follow-up understanding
+| Component      | Status          |
+| -------------- | --------------- |
+| Architecture   | 🟢 Multi-Agent  |
+| Implementation | 🟢 Configurable |
+| Collaboration  | 🟢 Dynamic      |
+| Memory         | 🟢 Advanced     |
+| UI             | 🟢 Interactive  |
 
 ---
 
-# 📁 Project Structure
+# ⭐ Features
 
-```
+* 🧠 Advanced memory system
+* ⚡ RAG + CAG hybrid pipeline
+* 🛡️ Security guardrails
+* 🌍 Multilingual AI
+* 📊 Agent trace visualization
+
+---
+
+# 📁 Structure
+
+```bash
 .
 ├── app.py
 ├── agents.py
@@ -291,39 +196,28 @@ how to hack a mobile app
 ├── tools.py
 ├── config.py
 ├── masvs.json
-├── owasp_rag_data/
-├── qdrant_local/
 └── README.md
 ```
 
 ---
 
-# 🧠 Key Highlights
-
-* Real **agentic AI system**
-* Clean modular architecture
-* Production-ready design patterns
-* Strong software engineering practices
-
----
-
 # ⚠️ Notes
 
-* Arabic quality depends on the LLM
+* Arabic output depends on LLM quality
 * Recommended models:
 
-  * llama3.1
-  * qwen2.5
+  * `llama3.1`
+  * `qwen2.5`
 
 ---
 
 # 👨‍💻 Author
 
-Developed for **Deep Generative Models Course**
+**Ahmed Hussein**
 Faculty of Artificial Intelligence
 
 ---
 
 # 📄 License
 
-Academic use only
+Academic Use Only
