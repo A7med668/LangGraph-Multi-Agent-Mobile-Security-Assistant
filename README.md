@@ -179,8 +179,8 @@ ENABLE_WEB_SEARCH=false
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repo>
-cd project
+git clone https://github.com/A7med668/LangGraph-Multi-Agent-Mobile-Security-Assistant.git
+cd LangGraph-Multi-Agent-Mobile-Security-Assistant
 ```
 
 ### 2. Install dependencies
