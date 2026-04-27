@@ -1,0 +1,44 @@
+{
+  "MASVS-STORAGE-1": "Ensure that sensitive data is not stored insecurely. Use Android Keystore or iOS Keychain.",
+  "MASVS-STORAGE-2": "Ensure that sensitive data is not exposed via IPC mechanisms.",
+  "MASVS-STORAGE-3": "Avoid storing sensitive data in plain text or shared preferences.",
+  "MASVS-STORAGE-4": "Encrypt sensitive data before storing it on the device.",
+
+  "MASVS-AUTH-1": "Implement proper authentication and authorization checks.",
+  "MASVS-AUTH-2": "Use strong authentication mechanisms such as multi-factor authentication (MFA).",
+  "MASVS-AUTH-3": "Protect sessions and tokens from theft, replay, and unauthorized reuse.",
+  "MASVS-AUTH-4": "Enforce strong password policies and prevent weak credentials.",
+  "MASVS-AUTH-5": "Invalidate sessions after logout or inactivity.",
+
+  "MASVS-NETWORK-1": "Ensure that all network communication is encrypted using TLS.",
+  "MASVS-NETWORK-2": "Validate server certificates correctly and avoid insecure trust managers.",
+  "MASVS-NETWORK-3": "Implement certificate pinning to prevent man-in-the-middle attacks.",
+  "MASVS-NETWORK-4": "Avoid transmitting sensitive data over untrusted networks.",
+
+  "MASVS-CRYPTO-1": "Use strong, approved cryptographic algorithms.",
+  "MASVS-CRYPTO-2": "Manage cryptographic keys securely and avoid hardcoding secrets.",
+  "MASVS-CRYPTO-3": "Use secure random number generators for cryptographic operations.",
+  "MASVS-CRYPTO-4": "Rotate cryptographic keys periodically.",
+
+  "MASVS-PLATFORM-1": "Use secure platform APIs and avoid unsafe inter-process communication.",
+  "MASVS-PLATFORM-2": "Prevent sensitive data leakage through logs, backups, screenshots, and clipboard.",
+  "MASVS-PLATFORM-3": "Restrict app permissions to only what is necessary.",
+  "MASVS-PLATFORM-4": "Secure exported components and avoid unintended exposure.",
+
+  "MASVS-CODE-1": "Follow secure coding practices and avoid injection vulnerabilities.",
+  "MASVS-CODE-2": "Validate and sanitize all user inputs.",
+  "MASVS-CODE-3": "Avoid hardcoding sensitive information such as API keys or credentials.",
+
+  "MASVS-RESILIENCE-1": "Implement basic anti-tampering and reverse engineering protections.",
+  "MASVS-RESILIENCE-2": "Detect rooted or jailbroken devices where appropriate.",
+  "MASVS-RESILIENCE-3": "Obfuscate code to make reverse engineering more difficult.",
+
+  "MASVS-SESSION-1": "Store session tokens securely and avoid exposing them in logs or URLs.",
+  "MASVS-SESSION-2": "Use short-lived tokens and refresh them securely.",
+
+  "MASVS-WEBVIEW-1": "Disable JavaScript in WebView unless absolutely necessary.",
+  "MASVS-WEBVIEW-2": "Prevent loading untrusted content in WebView.",
+
+  "MASVS-LOGGING-1": "Do not log sensitive data such as passwords or tokens.",
+  "MASVS-LOGGING-2": "Ensure logs are protected and not accessible to other apps."
+}
