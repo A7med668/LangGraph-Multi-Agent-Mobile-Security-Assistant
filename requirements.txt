@@ -25,3 +25,5 @@ tavily-python
 
 # Utilities
 numpy
+python-dotenv
+langsmith

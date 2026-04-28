@@ -752,7 +752,9 @@ async def run_security_assistant_streaming(
     guard_model_name: str,
     response_model_name: str,
     cache_agent: Optional[CacheAgent] = None,
-    enable_web_search: bool = False
+    enable_web_search: bool = False,
+    enable_langsmith: bool = False,
+    langsmith_project: str = "mobile-security-assistant"
 ) -> AsyncIterator[Dict[str, Any]]:
     
     
@@ -791,7 +793,18 @@ async def run_security_assistant_streaming(
         enable_web_search=enable_web_search
     )
     
-    config = RunnableConfig(configurable={"thread_id": user_id})
+    config = RunnableConfig(
+        configurable={"thread_id": user_id},
+        tags=["langgraph", "streamlit", "mobile-security"],
+        metadata={
+            "user_id": user_id,
+            "app": "LangGraph Mobile Security Assistant",
+            "langsmith_enabled": enable_langsmith,
+            "langsmith_project": langsmith_project,
+            "response_model": response_model_name,
+            "web_search_enabled": enable_web_search,
+        },
+    )
 
     streamed_anything = False
 

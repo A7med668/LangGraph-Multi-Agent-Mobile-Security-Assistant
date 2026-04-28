@@ -10,6 +10,14 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
+try:
+    from dotenv import load_dotenv
+except ImportError:  # Keeps config importable even before dependencies are installed.
+    load_dotenv = None
+
+if load_dotenv:
+    load_dotenv()
+
 
 @dataclass(frozen=True)
 class AppConfig:
@@ -29,6 +37,11 @@ class AppConfig:
     compression_threshold: int
     enable_cache: bool
     enable_web_search: bool
+    enable_langsmith: bool
+    langsmith_endpoint: str
+    langsmith_project: str
+    langsmith_api_key: str
+    tavily_api_key: str
 
 
 def _get_bool(name: str, default: bool) -> bool:
@@ -50,6 +63,10 @@ def _get_int(name: str, default: int) -> int:
 
 def load_config() -> AppConfig:
     base_dir = Path(os.getenv("APP_BASE_DIR", ".")).resolve()
+    langsmith_key = os.getenv("LANGSMITH_API_KEY") or os.getenv("LANGCHAIN_API_KEY", "")
+    langsmith_project = os.getenv("LANGSMITH_PROJECT") or os.getenv("LANGCHAIN_PROJECT", "mobile-security-assistant")
+    langsmith_endpoint = os.getenv("LANGSMITH_ENDPOINT") or os.getenv("LANGCHAIN_ENDPOINT", "https://api.smith.langchain.com")
+
     return AppConfig(
         response_model=os.getenv("RESPONSE_MODEL", "mistral:latest"),
         guard_model=os.getenv("GUARD_MODEL", "llama3:latest"),
@@ -67,4 +84,13 @@ def load_config() -> AppConfig:
         compression_threshold=_get_int("MEMORY_COMPRESSION_THRESHOLD", 30),
         enable_cache=_get_bool("ENABLE_CACHE", True),
         enable_web_search=_get_bool("ENABLE_WEB_SEARCH", False),
+        enable_langsmith=(
+            _get_bool("ENABLE_LANGSMITH", False)
+            or _get_bool("LANGSMITH_TRACING", False)
+            or _get_bool("LANGCHAIN_TRACING_V2", False)
+        ),
+        langsmith_endpoint=langsmith_endpoint,
+        langsmith_project=langsmith_project,
+        langsmith_api_key=langsmith_key,
+        tavily_api_key=os.getenv("TAVILY_API_KEY", ""),
     )

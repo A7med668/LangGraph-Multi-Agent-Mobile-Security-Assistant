@@ -3,6 +3,9 @@ import os
 import json
 from datetime import datetime
 import asyncio
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from agents import RetrieverAgent, DatabaseAgent
 from memory_enhanced import EnhancedMemoryAgent
@@ -11,6 +14,41 @@ from langgraph_workflow import run_security_assistant_streaming
 from config import load_config
 
 APP_CONFIG = load_config()
+
+
+def mask_secret(value: str) -> str:
+    if not value:
+        return "Not configured"
+    if len(value) <= 8:
+        return "Configured"
+    return f"{value[:4]}...{value[-4:]}"
+
+
+def configure_observability_from_env(config):
+    """Use .env as the single source of truth for LangSmith settings."""
+    if config.enable_langsmith and config.langsmith_api_key:
+        os.environ["LANGSMITH_TRACING"] = "true"
+        os.environ["LANGSMITH_API_KEY"] = config.langsmith_api_key
+        os.environ["LANGSMITH_ENDPOINT"] = config.langsmith_endpoint
+        os.environ["LANGSMITH_PROJECT"] = config.langsmith_project
+        # Compatibility with older LangChain/LangSmith integrations.
+        os.environ["LANGCHAIN_TRACING_V2"] = "true"
+        os.environ["LANGCHAIN_API_KEY"] = config.langsmith_api_key
+        os.environ["LANGCHAIN_ENDPOINT"] = config.langsmith_endpoint
+        os.environ["LANGCHAIN_PROJECT"] = config.langsmith_project
+    else:
+        os.environ["LANGSMITH_TRACING"] = "false"
+        os.environ["LANGCHAIN_TRACING_V2"] = "false"
+
+
+def configure_tools_from_env(config):
+    """Use .env as the single source of truth for external tool keys."""
+    if config.tavily_api_key:
+        os.environ["TAVILY_API_KEY"] = config.tavily_api_key
+
+
+configure_observability_from_env(APP_CONFIG)
+configure_tools_from_env(APP_CONFIG)
 
 # =========================================================
 # Page Configuration
@@ -156,6 +194,8 @@ defaults = {
     "response_model": APP_CONFIG.response_model,
     "enable_web_search": APP_CONFIG.enable_web_search,
     "enable_cache": APP_CONFIG.enable_cache,
+    "enable_langsmith": APP_CONFIG.enable_langsmith,
+    "langsmith_project": APP_CONFIG.langsmith_project,
     "last_used_agents": [],
     "last_trace": [],
     "total_questions": 0,
@@ -344,7 +384,9 @@ with tab_chat:
                                 guard_model_name=FIXED_GUARD_MODEL,
                                 response_model_name=st.session_state.response_model,
                                 cache_agent=st.session_state.cache_agent if st.session_state.enable_cache else None,
-                                enable_web_search=st.session_state.enable_web_search
+                                enable_web_search=st.session_state.enable_web_search,
+                                enable_langsmith=st.session_state.enable_langsmith,
+                                langsmith_project=st.session_state.langsmith_project
                             ):
                                 if event["type"] == "chunk":
                                     cleaned = event["content"].replace("SAFE", "").replace("MALICIOUS", "")
@@ -488,21 +530,53 @@ with tab_system:
 
         st.session_state.enable_web_search = st.toggle(
             "Enable Web Search",
-            value=st.session_state.enable_web_search
+            value=st.session_state.enable_web_search,
+            help="Uses TAVILY_API_KEY from .env when available; otherwise DuckDuckGo fallback is used."
         )
 
-        if st.session_state.enable_web_search:
-            tavily_key = st.text_input(
-                "Tavily API Key",
-                type="password",
-                help="If empty, DuckDuckGo fallback will be used."
-            )
-            if tavily_key:
-                os.environ["TAVILY_API_KEY"] = tavily_key
+        st.caption(f"Tavily API Key: {mask_secret(APP_CONFIG.tavily_api_key)} (.env only)")
 
         st.session_state.enable_cache = st.toggle(
             "Enable Cache-Aware Generation",
             value=st.session_state.enable_cache
+        )
+
+        # =========================
+        # LangSmith Tracing Control
+        # =========================
+        st.session_state.enable_langsmith = st.toggle(
+            "Enable LangSmith Tracing",
+            value=st.session_state.enable_langsmith,
+            help="Uses LangSmith variables from .env only; the API key is never entered in Streamlit."
+        )
+
+        if st.session_state.enable_langsmith:
+            if not APP_CONFIG.langsmith_api_key:
+                st.warning("⚠️ LANGSMITH_API_KEY / LANGCHAIN_API_KEY not found in .env")
+                os.environ["LANGSMITH_TRACING"] = "false"
+                os.environ["LANGCHAIN_TRACING_V2"] = "false"
+            else:
+                os.environ["LANGSMITH_TRACING"] = "true"
+                os.environ["LANGSMITH_API_KEY"] = APP_CONFIG.langsmith_api_key
+                os.environ["LANGSMITH_ENDPOINT"] = APP_CONFIG.langsmith_endpoint
+                os.environ["LANGSMITH_PROJECT"] = st.session_state.langsmith_project
+
+                # Compatibility with older LangChain/LangSmith integrations.
+                os.environ["LANGCHAIN_TRACING_V2"] = "true"
+                os.environ["LANGCHAIN_API_KEY"] = APP_CONFIG.langsmith_api_key
+                os.environ["LANGCHAIN_ENDPOINT"] = APP_CONFIG.langsmith_endpoint
+                os.environ["LANGCHAIN_PROJECT"] = st.session_state.langsmith_project
+
+                st.success("LangSmith tracing is enabled ✅")
+                st.markdown("[🔍 Open LangSmith Dashboard](https://smith.langchain.com)")
+        else:
+            os.environ["LANGSMITH_TRACING"] = "false"
+            os.environ["LANGCHAIN_TRACING_V2"] = "false"
+            st.info("LangSmith tracing is disabled")
+
+        st.caption(
+            f"LangSmith Project: `{st.session_state.langsmith_project}` | "
+            f"API Key: {mask_secret(APP_CONFIG.langsmith_api_key)} (.env only)"
         )
 
         cache_ttl = APP_CONFIG.cache_ttl_minutes
@@ -566,7 +640,7 @@ with tab_system:
 
         render_status_card(
             "Feature Flags",
-            f"Cache: `{st.session_state.enable_cache}`<br>Web Search: `{st.session_state.enable_web_search}`",
+            f"Cache: `{st.session_state.enable_cache}`<br>Web Search: `{st.session_state.enable_web_search}`<br>LangSmith: `{st.session_state.enable_langsmith}`",
             "🔧"
         )
 
